@@ -47,17 +47,24 @@ def create_accounts():
 create_accounts()
 
 
-def insert_user(todo: Accounts):
+def insert_user(accounts: Accounts):
     '''Insert data to the database'''
-    c.execute('select count(*) FROM todos')
+    c.execute('select count(*) FROM customer')
     count = c.fetchone()[0]
-    todo.position = count if count else 0
+    accounts.position = count if count else 0
 
     with conn:
-        c.execute('INSERT INTO todos VALUES (:task, :category, :date_added, :date_completed, :status, :position)',
-                  {'task': todo.task, 'category': todo.category, 'date_added': todo.date_added, 'date_completed': todo.date_completed,
-                   'status': todo.status, 'position': todo.position})
+        c.execute('INSERT INTO customer VALUES (:customer_id, :customer_name, :address, :contact, :balance, :account_type, :date_created, :position)',
+                  {'customer_id': accounts.customer_id, 'customer_name': accounts.customer_name, 'address': accounts.address, 'contact': accounts.contact,
+                   'balance': accounts.balance, 'account_type': accounts.account_type, 'date_created': accounts.date_created, 'position': accounts.position})
 
 
-def get_all_info():
-    pass
+def get_all_accounts() -> List[Accounts]:
+    '''Fetch all data from the databse and return it as a list'''
+    c.execute('select * from customer')
+    results = c.fetchall()
+    customer = []
+
+    for result in results:
+        customer.append(Accounts(*result))
+    return customer
