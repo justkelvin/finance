@@ -18,7 +18,10 @@ def create_customer_table():
         balance text,
         account_type text,
         date_created text,
-        customer_id text
+        max_w text,
+        daily_spend text,
+        customer_id text,
+        max_weekly_spend text
     )""")
 
 def create_bank_table():
@@ -79,3 +82,4 @@ def get_all_info() -> List[Customer]:
     for result in results:
         customer.append(Customer(*result))
     return customer
+
