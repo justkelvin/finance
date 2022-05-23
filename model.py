@@ -7,7 +7,7 @@ class Customer:
         self.address = address
         self.contact = contact
         self.balance = balance
-        self.account_type = account_type
+        self.account_type = account_type if account_type is not None else 1
         self.date_created = date_created if date_created is not None else datetime.now().isoformat()
         self.position = position if position is not None else None
         
