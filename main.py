@@ -59,7 +59,7 @@ def limit(customer_id: int):
 	table.add_column("Remaining amount to transact today", min_width=12, justify="right")
 
 	for index, info in enumerate(details, start=1):
-		remaining = int(info.daily_spend) - int(info.max_weekly_spend)
+		remaining = int(info.daily_spend) - int(info.spending)
 		table.add_row(str(index), info.customer_id, info.customer_name, info.daily_spend, str(remaining))
 	console.print(table)
 

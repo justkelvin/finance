@@ -4,9 +4,6 @@ from random import randint
 import sqlite3
 from typing import List
 from datetime import datetime
-
-from numpy import greater
-from sympy import LessThan
 from model import Accounts, Bank, Customer
 
 conn = sqlite3.connect('finance.db')
@@ -23,7 +20,7 @@ def create_customer_table():
         date_created text,
         max_w text,
         daily_spend text,
-        max_weekly_spend text,
+        spending text,
         customer_id text,
         status text
     )""")
@@ -73,9 +70,9 @@ def insert_user(accounts: Customer):
     accounts.customer_id = randint(1111111, 99999999) #if count else 0
 
     with conn:
-        c.execute('INSERT INTO customer VALUES (:customer_name, :address, :contact, :balance, :account_type, :date_created, :max_w, :daily_spend, :max_weekly_spend, :customer_id, :status)',
+        c.execute('INSERT INTO customer VALUES (:customer_name, :address, :contact, :balance, :account_type, :date_created, :max_w, :daily_spend, :spending, :customer_id, :status)',
                   {'customer_name': accounts.customer_name, 'address': accounts.address, 'contact': accounts.contact,
-                   'balance': accounts.balance, 'account_type': accounts.account_type, 'date_created': accounts.date_created, 'max_w': accounts.max_w, 'daily_spend': accounts.daily_spend, 'max_weekly_spend': accounts.max_weekly_spend, 'customer_id': accounts.customer_id, 'status': accounts.status})
+                   'balance': accounts.balance, 'account_type': accounts.account_type, 'date_created': accounts.date_created, 'max_w': accounts.max_w, 'daily_spend': accounts.daily_spend, 'spending': accounts.spending, 'customer_id': accounts.customer_id, 'status': accounts.status})
 
 def get_all_info() -> List[Customer]:
     '''Fetch all data from the databse and return it as a list'''
@@ -114,18 +111,18 @@ def transact_withdraw(customer_id: int, amount: int, commit=True):
             balance = int(data.balance)
             max_withdraw_limit = int(data.max_w)
             daily_spend = int(data.daily_spend)
-            max_weekly_spend = int(data.max_weekly_spend)
+            spending = int(data.spending)
 
             if int(amount) > int(balance):
                 return f"Your account balance of {balance} is not enough to transact this amount of {amount}."
             elif amount > max_withdraw_limit:
                 return f"You can't withdraw this amount, its exceeding your limit of {data.max_w}"
-            elif max_weekly_spend < daily_spend:
+            elif spending < daily_spend:
                 new_balance = int(balance) - int(amount)
-                new_spending = int(amount) + int(max_weekly_spend)
+                new_spending = int(amount) + int(spending)
                 with conn:
-                    c.execute('UPDATE customer SET balance = :balance, max_weekly_spend = :max_weekly_spend WHERE customer_id = :customer_id', 
-                    {'balance': new_balance, 'max_weekly_spend': new_spending, 'customer_id': customer_id})
+                    c.execute('UPDATE customer SET balance = :balance, spending = :spending WHERE customer_id = :customer_id', 
+                    {'balance': new_balance, 'spending': new_spending, 'customer_id': customer_id})
                     return f"Success, new account balance {new_balance}."
             else:
                 return "You have exceeded you todays amount of transaction"
