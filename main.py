@@ -4,7 +4,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 from model import Customer, Bank, Accounts
-from database import bank_details, insert_user, get_all_info, bank_info, make_savings, transact_withdraw
+from database import bank_details, check_limit, insert_user, get_all_info, bank_info, make_savings, transact_withdraw
 
 console = Console()
 app = typer.Typer()
@@ -45,6 +45,23 @@ def withdraw(customer_id: int, amount: int):
 @app.command(short_help="Transform account to a savings account")
 def savings(customer_id: int):
 	typer.echo(make_savings(customer_id))
+
+@app.command(short_help="check your daily limit")
+def limit(customer_id: int):
+	details = check_limit(customer_id)
+	console.print("[bold magenta]Account information[/bold magenta]!", "💻")
+
+	table = Table(show_header=True, header_style="bold blue")
+	table.add_column("#", style="dim", width=6)
+	table.add_column("Customer ID", min_width=12, justify="right")
+	table.add_column("Name", min_width=20)
+	table.add_column("Daily Spend", min_width=12, justify="right")
+	table.add_column("Remaining amount to transact today", min_width=12, justify="right")
+
+	for index, info in enumerate(details, start=1):
+		remaining = int(info.daily_spend) - int(info.max_weekly_spend)
+		table.add_row(str(index), info.customer_id, info.customer_name, info.daily_spend, str(remaining))
+	console.print(table)
 
 
 @app.command(short_help="Print all accounts.")

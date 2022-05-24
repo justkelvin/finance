@@ -10,9 +10,9 @@ class Customer:
         self.balance = balance
         self.account_type = account_type if account_type is not None else "Standard" # 1 shows its standard account any other value is savings account
         self.date_created = date_created if date_created is not None else datetime.now().isoformat()
-        self.max_w = max_w if max_w is not None else None
+        self.max_w = max_w if max_w is not None else 0
         self.daily_spend = daily_spend if daily_spend is not None else 0
-        self.max_weekly_spend = max_weekly_spend if max_weekly_spend is not None else None
+        self.max_weekly_spend = max_weekly_spend if max_weekly_spend is not None else 0
         self.customer_id = customer_id if customer_id is not None else None
         self.status = status if status is not None else 1
         

@@ -104,18 +104,36 @@ def transact_withdraw(customer_id: int, amount: int, commit=True):
     else:
         """Check the transaction limit and amount they are transacting"""
         c.execute('select * from customer where customer_id = :customer_id', {'customer_id': customer_id})
-        max_w = c.fetchall()
+        account_info = c.fetchall()
         details = []
         
-        for info in max_w:
+        for info in account_info:
             details.append(Customer(*info))
         
         for idx, data in enumerate(details, start=1):
-            print(data.customer_id, data.status)
+            balance = int(data.balance)
+            max_withdraw_limit = int(data.max_w)
+            daily_spend = int(data.daily_spend)
+            max_weekly_spend = int(data.max_weekly_spend)
+
             if int(amount) > int(balance):
-                print(f"The amount exceeds your max withdraw limit of {max_w}.")
-                print(details.)
-                quit()
+                return f"Your account balance of {balance} is not enough to transact this amount of {amount}."
+            elif amount > max_withdraw_limit:
+                return f"You can't withdraw this amount, its exceeding your limit of {data.max_w}"
+            elif max_weekly_spend < daily_spend:
+                new_balance = int(balance) - int(amount)
+                new_spending = int(amount) + int(max_weekly_spend)
+                with conn:
+                    c.execute('UPDATE customer SET balance = :balance, max_weekly_spend = :max_weekly_spend WHERE customer_id = :customer_id', 
+                    {'balance': new_balance, 'max_weekly_spend': new_spending, 'customer_id': customer_id})
+                    return f"Success, new account balance {new_balance}."
+            else:
+                return "You have exceeded you todays amount of transaction"
+                # if amount < i:
+                #     print(f"You can only withdraw this amount {i}")
+                #     ans = input("Do you accept(Y/n): ")
+                #     if ans == "Y" or ans == "y":
+                #         new_balance = balance - i
         
 def make_savings(customer_id: int):
     '''This functions changes an account from standard to a savings'''
@@ -123,9 +141,14 @@ def make_savings(customer_id: int):
     account_type = c.fetchone()[0]
     if account_type == "Standard":
         with conn:
-            x = "Savings"
-            c.execute('UPDATE customer SET account_type = :account_type WHERE customer_id = :customer_id', {'account_type': x, 'customer_id': customer_id})
-            return f"Success, you account is now a savings account."
+            print("We need this information to create a savings account.\n")
+            a = "Savings"
+            b = input("Enter your daily transaction amount limit: ")
+            d = input("Maximum amount you can withdraw: ")
+
+            c.execute('UPDATE customer SET account_type = :account_type, max_w = :max_w, daily_spend = :daily_spend WHERE customer_id = :customer_id', 
+            {'account_type': a, 'max_w': d, 'daily_spend': b, 'customer_id': customer_id})
+            return f"Success, you account is now a savings account with a daily withdraw limit of {b} and max amount you can withdraw at once is {d}."
     else:
         ans = input("Do you want to change to Standard(Y/N): ")
         if ans == "Y" or ans == "y":
@@ -133,3 +156,14 @@ def make_savings(customer_id: int):
             with conn:
                 c.execute('UPDATE customer SET account_type = :account_type WHERE customer_id = :customer_id', {'account_type': x, 'customer_id': customer_id})
                 return f"Your account with {customer_id} is now a standard account."
+
+
+def check_limit(customer_id: int):
+    '''This functions checks the limit and prints it to the user'''
+    c.execute('select * from customer where customer_id = :customer_id', {'customer_id': customer_id})
+    account_info = c.fetchall()
+    details = []
+    
+    for info in account_info:
+        details.append(Customer(*info))
+    return details
