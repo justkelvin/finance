@@ -92,7 +92,7 @@ def transact_withdraw(customer_id: int, amount: int, commit=True):
         c.execute('select balance from customer where customer_id = :customer_id', {'customer_id': customer_id})
         balance = c.fetchone()[0]
         new_balance = int(balance) - int(amount)
-        if int(amount) < int(balance):
+        if int(amount) <= int(balance):
             with conn:
                 c.execute('UPDATE customer SET balance = :balance WHERE customer_id = :customer_id', {'balance': new_balance, 'customer_id': customer_id})
                 return f"Success, new account balance {new_balance}."
