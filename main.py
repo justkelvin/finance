@@ -4,7 +4,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 from model import Customer, Bank, Accounts
-from database import bank_details, insert_user, get_all_info, bank_info, transact_withdraw
+from database import bank_details, insert_user, get_all_info, bank_info, make_savings, transact_withdraw
 
 console = Console()
 app = typer.Typer()
@@ -41,6 +41,10 @@ def bank():
 def withdraw(customer_id: int, amount: int):
 	typer.echo(f"Withdrawing {amount} from account {customer_id}...")
 	typer.echo(transact_withdraw(customer_id, amount))
+
+@app.command(short_help="Transform account to a savings account")
+def savings(customer_id: int):
+	typer.echo(make_savings(customer_id))
 
 
 @app.command(short_help="Print all accounts.")

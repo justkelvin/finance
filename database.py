@@ -103,11 +103,33 @@ def transact_withdraw(customer_id: int, amount: int, commit=True):
             return f"Your account balance of {balance} is not enough to transact this amount of {amount}."
     else:
         """Check the transaction limit and amount they are transacting"""
-        c.execute('select max_w from customer where customer_id = :customer_id', {'customer_id': customer_id})
-        max_w = c.fetchone()[0]
-        c.execute('select max_weekly_spend from customer where customer_id = :customer_id', {'customer_id': customer_id})
-        max_weekly_spend = c.fetchone()[0]
-        if int(amount) > int(balance):
-            print(f"The amount exceeds your max withdraw limit of {max_w}.")
-            quit()
+        c.execute('select * from customer where customer_id = :customer_id', {'customer_id': customer_id})
+        max_w = c.fetchall()
+        details = []
         
+        for info in max_w:
+            details.append(Customer(*info))
+        
+        for idx, data in enumerate(details, start=1):
+            print(data.customer_id, data.status)
+            if int(amount) > int(balance):
+                print(f"The amount exceeds your max withdraw limit of {max_w}.")
+                print(details.)
+                quit()
+        
+def make_savings(customer_id: int):
+    '''This functions changes an account from standard to a savings'''
+    c.execute('select account_type from customer where customer_id = :customer_id', {'customer_id': customer_id})
+    account_type = c.fetchone()[0]
+    if account_type == "Standard":
+        with conn:
+            x = "Savings"
+            c.execute('UPDATE customer SET account_type = :account_type WHERE customer_id = :customer_id', {'account_type': x, 'customer_id': customer_id})
+            return f"Success, you account is now a savings account."
+    else:
+        ans = input("Do you want to change to Standard(Y/N): ")
+        if ans == "Y" or ans == "y":
+            x = "Standard"
+            with conn:
+                c.execute('UPDATE customer SET account_type = :account_type WHERE customer_id = :customer_id', {'account_type': x, 'customer_id': customer_id})
+                return f"Your account with {customer_id} is now a standard account."
