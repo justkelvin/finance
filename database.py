@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 
+from random import randint
 import sqlite3
 from typing import List
 from datetime import datetime
 
+from numpy import greater
+from sympy import LessThan
 from model import Accounts, Bank, Customer
 
 conn = sqlite3.connect('finance.db')
@@ -20,8 +23,9 @@ def create_customer_table():
         date_created text,
         max_w text,
         daily_spend text,
+        max_weekly_spend text,
         customer_id text,
-        max_weekly_spend text
+        status text
     )""")
 
 def create_bank_table():
@@ -65,13 +69,13 @@ def bank_info() ->  List[Bank]:
 def insert_user(accounts: Customer):
     '''Insert customer data to the database'''
     c.execute('select count(*) FROM customer')
-    count = c.fetchone()[0]
-    accounts.customer_id = count if count else 0
+    # count = c.fetchone()[0]
+    accounts.customer_id = randint(1111111, 99999999) #if count else 0
 
     with conn:
-        c.execute('INSERT INTO customer VALUES (:customer_name, :address, :contact, :balance, :account_type, :date_created, :customer_id)',
+        c.execute('INSERT INTO customer VALUES (:customer_name, :address, :contact, :balance, :account_type, :date_created, :max_w, :daily_spend, :max_weekly_spend, :customer_id, :status)',
                   {'customer_name': accounts.customer_name, 'address': accounts.address, 'contact': accounts.contact,
-                   'balance': accounts.balance, 'account_type': accounts.account_type, 'date_created': accounts.date_created, 'customer_id': accounts.customer_id})
+                   'balance': accounts.balance, 'account_type': accounts.account_type, 'date_created': accounts.date_created, 'max_w': accounts.max_w, 'daily_spend': accounts.daily_spend, 'max_weekly_spend': accounts.max_weekly_spend, 'customer_id': accounts.customer_id, 'status': accounts.status})
 
 def get_all_info() -> List[Customer]:
     '''Fetch all data from the databse and return it as a list'''
@@ -83,3 +87,27 @@ def get_all_info() -> List[Customer]:
         customer.append(Customer(*result))
     return customer
 
+def transact_withdraw(customer_id: int, amount: int, commit=True):
+    '''Deduct cash from users balance'''
+    c.execute('select account_type from customer where customer_id = :customer_id', {'customer_id': customer_id})
+    account_type = c.fetchone()[0]
+    if account_type == "Standard":
+        c.execute('select balance from customer where customer_id = :customer_id', {'customer_id': customer_id})
+        balance = c.fetchone()[0]
+        new_balance = int(balance) - int(amount)
+        if int(amount) < int(balance):
+            with conn:
+                c.execute('UPDATE customer SET balance = :balance WHERE customer_id = :customer_id', {'balance': new_balance, 'customer_id': customer_id})
+                return f"Success, new account balance {new_balance}."
+        else:
+            return f"Your account balance of {balance} is not enough to transact this amount of {amount}."
+    else:
+        """Check the transaction limit and amount they are transacting"""
+        c.execute('select max_w from customer where customer_id = :customer_id', {'customer_id': customer_id})
+        max_w = c.fetchone()[0]
+        c.execute('select max_weekly_spend from customer where customer_id = :customer_id', {'customer_id': customer_id})
+        max_weekly_spend = c.fetchone()[0]
+        if int(amount) > int(balance):
+            print(f"The amount exceeds your max withdraw limit of {max_w}.")
+            quit()
+        
