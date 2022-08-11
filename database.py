@@ -89,13 +89,21 @@ def transact(customer_id: int, new_balance: int):
         c.execute('UPDATE customer SET balance = :balance WHERE customer_id = :customer_id', {'balance': new_balance, 'customer_id': customer_id})
         print(f"Success, new account balance {new_balance}.")
 
-def transact_withdraw(customer_id: int, amount: int, commit=True):
+def transact_withdraw(customer_id: int, amount: int, commit=True) -> List[Customer]:
     '''Deduct cash from users balance'''
-    c.execute('select account_type from customer where customer_id = :customer_id', {'customer_id': customer_id})
-    account_type = c.fetchone()[0]
+    c.execute('select * from customer where customer_id = :customer_id', {'customer_id': customer_id})
+    info_account = c.fetchall()
+    customer = []
+    
+    # Appends all account info of specified customer to a list array
+    for result in info_account:
+        customer.append(Customer(*result))
+    
+    for idx, data in enumerate(customer, start = 1):
+        account_type = data.account_type
+        balance = data.balance
+
     if account_type == "Standard":
-        c.execute('select balance from customer where customer_id = :customer_id', {'customer_id': customer_id})
-        balance = c.fetchone()[0]
         new_balance = int(balance) - int(amount)
         if int(amount) <= int(balance):
             transact(customer_id, new_balance)
