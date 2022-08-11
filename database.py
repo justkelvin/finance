@@ -102,6 +102,9 @@ def transact_withdraw(customer_id: int, amount: int, commit=True) -> List[Custom
     for idx, data in enumerate(customer, start = 1):
         account_type = data.account_type
         balance = data.balance
+        max_withdraw_limit = int(data.max_w)
+        daily_spend = int(data.daily_spend)
+        spending = int(data.spending)
 
     if account_type == "Standard":
         new_balance = int(balance) - int(amount)
@@ -111,18 +114,7 @@ def transact_withdraw(customer_id: int, amount: int, commit=True) -> List[Custom
             return f"Your account balance of {balance} is not enough to transact this amount of {amount}."
     else:
         """Check the transaction limit and amount they are transacting"""
-        c.execute('select * from customer where customer_id = :customer_id', {'customer_id': customer_id})
-        account_info = c.fetchall()
-        details = []
-        
-        for info in account_info:
-            details.append(Customer(*info))
-        
-        for idx, data in enumerate(details, start=1):
-            balance = int(data.balance)
-            max_withdraw_limit = int(data.max_w)
-            daily_spend = int(data.daily_spend)
-            spending = int(data.spending)
+          
 
             # if int(amount) > int(balance):
             #     return f"Your account balance of {balance} is not enough to transact this amount of {amount}."
