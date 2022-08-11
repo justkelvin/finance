@@ -85,6 +85,7 @@ def get_all_info() -> List[Customer]:
     return customer
 
 def transact(customer_id: int, new_balance: int):
+    '''This function executes transaction process'''
     with conn:
         c.execute('UPDATE customer SET balance = :balance WHERE customer_id = :customer_id', {'balance': new_balance, 'customer_id': customer_id})
         print(f"Success, new account balance {new_balance}.")
