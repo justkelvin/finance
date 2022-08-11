@@ -107,33 +107,28 @@ def transact_withdraw(customer_id: int, amount: int, commit=True) -> List[Custom
         spending = int(data.spending)
 
     if account_type == "Standard":
-        new_balance = int(balance) - int(amount)
         if int(amount) <= int(balance):
+            new_balance = int(balance) - int(amount)
             transact(customer_id, new_balance)
         else:
             return f"Your account balance of {balance} is not enough to transact this amount of {amount}."
     else:
         """Check the transaction limit and amount they are transacting"""
-          
-
-            # if int(amount) > int(balance):
-            #     return f"Your account balance of {balance} is not enough to transact this amount of {amount}."
-            # elif amount > max_withdraw_limit:
-            #     return f"You can't withdraw this amount, its exceeding your limit of {data.max_w}"
-            # elif spending < daily_spend:
-            #     new_balance = int(balance) - int(amount)
-            #     new_spending = int(amount) + int(spending)
-            #     with conn:
-            #         c.execute('UPDATE customer SET balance = :balance, spending = :spending WHERE customer_id = :customer_id', 
-            #         {'balance': new_balance, 'spending': new_spending, 'customer_id': customer_id})
-            #         return f"Success, new account balance {new_balance}."
-            # else:
-                # return "You have exceeded you todays amount of transaction"
-                # if amount < i:
-                #     print(f"You can only withdraw this amount {i}")
-                #     ans = input("Do you accept(Y/n): ")
-                #     if ans == "Y" or ans == "y":
-                #         new_balance = balance - i
+        if int(amount) <= int(balance):
+            if int(amount) <= max_withdraw_limit:
+                if int(daily_spend) > int(spending):
+                    new_balance = int(balance) - int(amount)
+                    new_spending = amount + spending
+                    with conn:
+                        c.execute('UPDATE customer SET balance = :balance, spending = :spending WHERE customer_id = :customer_id', 
+                        {'balance': new_balance, 'spending': new_spending, 'customer_id': customer_id})
+                        return f"Success, new account balance {new_balance}."
+                else:
+                    return "You have exceeded you todays amount of transaction"
+            else:
+                return f"You can't withdraw this amount, its exceeding your limit of {data.max_w}"
+        else:
+            return f"Your account balance of {balance} is not enough to transact this amount of {amount}."
         
 def make_savings(customer_id: int):
     '''This functions changes an account from standard to a savings'''
