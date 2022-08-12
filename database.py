@@ -150,8 +150,11 @@ def make_savings(customer_id: int):
         ans = input("Do you want to change to Standard(Y/N): ")
         if ans == "Y" or ans == "y":
             x = "Standard"
+            max_w = 0
+            daily_spend = 0
+            spending = 0
             with conn:
-                c.execute('UPDATE customer SET account_type = :account_type WHERE customer_id = :customer_id', {'account_type': x, 'customer_id': customer_id})
+                c.execute('UPDATE customer SET account_type = :account_type, max_w = :max_w, daily_spend = :daily_spend, spending = :spending WHERE customer_id = :customer_id', {'account_type': x, 'max_w': max_w, 'daily_spend': daily_spend, 'spending': spending, 'customer_id': customer_id})
                 return f"Your account with {customer_id} is now a standard account."
 
 
