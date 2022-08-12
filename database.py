@@ -67,7 +67,7 @@ def insert_user(accounts: Customer):
     '''Insert customer data to the database'''
     c.execute('select count(*) FROM customer')
     # count = c.fetchone()[0]
-    accounts.customer_id = randint(1111111, 99999999) #if count else 0
+    accounts.customer_id = randint(11111111, 99999999) #if count else 0
 
     with conn:
         c.execute('INSERT INTO customer VALUES (:customer_name, :address, :contact, :balance, :account_type, :date_created, :max_w, :daily_spend, :spending, :customer_id, :status)',
