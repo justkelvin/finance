@@ -106,6 +106,7 @@ def transact_withdraw(customer_id: int, amount: int, commit=True) -> List[Custom
         max_withdraw_limit = int(data.max_w)
         daily_spend = int(data.daily_spend)
         spending = int(data.spending)
+        w_amount = daily_spend - spending
 
     if account_type == "Standard":
         if int(amount) <= int(balance):
@@ -117,7 +118,7 @@ def transact_withdraw(customer_id: int, amount: int, commit=True) -> List[Custom
         """Check the transaction limit and amount they are transacting"""
         if int(amount) <= int(balance):
             if int(amount) <= max_withdraw_limit:
-                if int(daily_spend) > int(spending):
+                if int(amount) <= int(w_amount):
                     new_balance = int(balance) - int(amount)
                     new_spending = amount + spending
                     with conn:
@@ -125,7 +126,7 @@ def transact_withdraw(customer_id: int, amount: int, commit=True) -> List[Custom
                         {'balance': new_balance, 'spending': new_spending, 'customer_id': customer_id})
                         return f"Success, new account balance {new_balance}."
                 else:
-                    return "You have exceeded you todays amount of transaction"
+                    return "You have exceeded you todays amount of transaction."
             else:
                 return f"You can't withdraw this amount, its exceeding your limit of {data.max_w}"
         else:
