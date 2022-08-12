@@ -66,7 +66,6 @@ def bank_info() ->  List[Bank]:
 def insert_user(accounts: Customer):
     '''Insert customer data to the database'''
     c.execute('select count(*) FROM customer')
-    # count = c.fetchone()[0]
     accounts.customer_id = randint(11111111, 99999999) #if count else 0
 
     with conn:
