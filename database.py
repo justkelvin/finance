@@ -47,6 +47,10 @@ create_customer_table()
 create_accounts()
 create_bank_table()
 
+def only_numerics(seq):
+    seq_type = type(seq)
+    return seq_type().join(filter(seq_type.isdigit, seq))
+
 def bank_details(bank: Bank):
     '''Info about the bank'''
     with conn:
@@ -139,8 +143,8 @@ def make_savings(customer_id: int):
         with conn:
             print("We need this information to create a savings account.\n")
             a = "Savings"
-            b = input("Enter your daily transaction amount limit: ")
-            d = input("Maximum amount you can withdraw: ")
+            b = only_numerics(input("Enter your daily transaction amount limit: "))
+            d = only_numerics(input("Maximum amount you can withdraw: "))
 
             c.execute('UPDATE customer SET account_type = :account_type, max_w = :max_w, daily_spend = :daily_spend WHERE customer_id = :customer_id', 
             {'account_type': a, 'max_w': d, 'daily_spend': b, 'customer_id': customer_id})
